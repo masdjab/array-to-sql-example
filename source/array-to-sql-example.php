@@ -1,6 +1,5 @@
 <?php
   # contoh export data ke format SQL
-  # buat Apsyadira
   
   $kolom_data = ["id_customer", "nm_customer", "alamat", "saldo"];
   $contoh_data = 
