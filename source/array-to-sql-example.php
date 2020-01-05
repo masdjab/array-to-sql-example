@@ -1,6 +1,6 @@
 <?php
   # contoh export data ke format SQL
-  # by masdjab
+  # by masdjab, 200105
   
   $kolom_data = ["id_customer", "nm_customer", "alamat", "saldo"];
   $contoh_data = 
