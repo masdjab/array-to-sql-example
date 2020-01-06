@@ -1,10 +1,12 @@
 <?php
-  # contoh export data ke format SQL
+  # convert data from array to sql script
   # by masdjab, 200105
   
   function export_data_as_sql($conn, $column_names, $items) {
     if(($jml_data = count($items)) > 0) {
-      $query = "INSERT INTO customer(" . join(", ", array_map(function($x){return "`$x`";}, $column_names)) . ") VALUES \r\n";
+      $columns_str = join(", ", array_map(function($x){return "`$x`";}, $column_names));
+      $query = "INSERT INTO customer($columns_str) VALUES \r\n";
+      
       for($i = 0; $i < $jml_data; $i++) {
         $mapper = 
           function($x) use($conn) {
@@ -26,11 +28,12 @@
     if(strlen($sql = export_data_as_sql($conn, $column_names, $items)) > 0) {
       echo "$sql\r\n\r\n";
     } else {
-      echo "Skip karena tidak ada data\r\n\r\n";
+      echo "Conversion skipped because data is empty\r\n\r\n";
     }
   }
   
   
+  # usage example
   $mysqli = mysqli_connect("localhost", "root", "");
   
   echo "test with non empty data\r\n";
