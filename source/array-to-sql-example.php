@@ -2,27 +2,52 @@
   # contoh export data ke format SQL
   # by masdjab, 200105
   
-  $kolom_data = ["id_customer", "nm_customer", "alamat", "saldo"];
-  $contoh_data = 
+  function export_data_as_sql($conn, $column_names, $items) {
+    if(($jml_data = count($items)) > 0) {
+      $query = "INSERT INTO customer(" . join(", ", array_map(function($x){return "`$x`";}, $column_names)) . ") VALUES \r\n";
+      for($i = 0; $i < $jml_data; $i++) {
+        $mapper = 
+          function($x) use($conn) {
+            return !is_null($x) ?  '"' . mysqli_escape_string($conn, $x) . '"' : "NULL";
+          };
+        $values_arr = array_map($mapper, $items[$i]);
+        $values_str = join(", ", $values_arr);
+        $query = $query . "(" . $values_str . ")" . ($i == ($jml_data - 1) ? ";" : ",") . "\r\n";
+      }
+      
+      return $query;
+    } else {
+      return "";
+    }
+  }
+  
+  
+  function test_export_data($conn, $column_names, $items) {
+    if(strlen($sql = export_data_as_sql($conn, $column_names, $items)) > 0) {
+      echo "$sql\r\n\r\n";
+    } else {
+      echo "Skip karena tidak ada data\r\n\r\n";
+    }
+  }
+  
+  
+  $mysqli = mysqli_connect("localhost", "root", "");
+  
+  echo "test with non empty data\r\n";
+  test_export_data(
+    $mysqli, 
+    ["id_customer", "nm_customer", "alamat", "saldo"], 
     [
       ["C001", "Siti Marfu'ah", "Mrican\r\nGejayan", "Yogyakarta", 32000], 
       ["C002", "Aris Munandar", "Kotabaru", "Yogyakarta", null], 
       ["C003", "Zainal Arifin", null, "Yogyakarta", 2500000]
-    ];
+    ]
+  );
   
-  $mysqli = mysqli_connect("localhost", "root", "");
-  $query = "INSERT INTO customer(" . join(", ", array_map(function($x){return "`$x`";}, $kolom_data)) . ") VALUES \r\n";
-  $jml_data = count($contoh_data);
-  for($i = 0; $i < $jml_data; $i++) {
-    $mapper = 
-      function($x) use($mysqli) {
-        return !is_null($x) ?  '"' . mysqli_escape_string($mysqli, $x) . '"' : "NULL";
-      };
-    $values_arr = array_map($mapper, $contoh_data[$i]);
-    $values_str = join(", ", $values_arr);
-    $query = $query . "(" . $values_str . ")" . ($i == ($jml_data - 1) ? ";" : ",") . "\r\n";
-  }
-  
-  echo "query insert:\r\n";
-  echo $query;
+  echo "test with empty data\r\n";
+  test_export_data(
+    $mysqli, 
+    ["id_customer", "nm_customer", "alamat", "saldo"], 
+    []
+  );
 ?>
