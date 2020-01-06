@@ -3,18 +3,18 @@
   # by masdjab, 200105
   
   function export_data_as_sql($conn, $column_names, $items) {
-    if(($jml_data = count($items)) > 0) {
+    if(($item_count = count($items)) > 0) {
       $columns_str = join(", ", array_map(function($x){return "`$x`";}, $column_names));
       $query = "INSERT INTO customer($columns_str) VALUES \r\n";
       
-      for($i = 0; $i < $jml_data; $i++) {
+      for($i = 0; $i < $item_count; $i++) {
         $mapper = 
           function($x) use($conn) {
             return !is_null($x) ?  '"' . mysqli_escape_string($conn, $x) . '"' : "NULL";
           };
         $values_arr = array_map($mapper, $items[$i]);
         $values_str = join(", ", $values_arr);
-        $query = $query . "(" . $values_str . ")" . ($i == ($jml_data - 1) ? ";" : ",") . "\r\n";
+        $query = $query . "(" . $values_str . ")" . ($i == ($item_count - 1) ? ";" : ",") . "\r\n";
       }
       
       return $query;
@@ -39,7 +39,7 @@
   echo "test with non empty data\r\n";
   test_export_data(
     $mysqli, 
-    ["id_customer", "nm_customer", "alamat", "saldo"], 
+    ["cust_id", "cust_name", "address", "credit"], 
     [
       ["C001", "Siti Marfu'ah", "Mrican\r\nGejayan", "Yogyakarta", 32000], 
       ["C002", "Aris Munandar", "Kotabaru", "Yogyakarta", null], 
@@ -50,7 +50,7 @@
   echo "test with empty data\r\n";
   test_export_data(
     $mysqli, 
-    ["id_customer", "nm_customer", "alamat", "saldo"], 
+    ["cust_id", "cust_name", "address", "credit"], 
     []
   );
 ?>
